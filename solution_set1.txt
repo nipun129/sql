@@ -110,5 +110,8 @@ INNER JOIN Products P ON O.product_id = P.product_id WHERE O.order_date between 
 WHERE B.unit >= 100;
 
 27.
+SELECT * FROM Users WHERE REGEXP_LIKE(mail, '^[a-zA-Z][a-zA-Z0-9\_\.\-]*@leetcode.com');
+
+28.
 
 
