@@ -64,5 +64,27 @@ FROM
 (SELECT count(delivery_id) as im_orders FROM Delivery WHERE order_date = customer_pref_delivery_date) D2;
 
 20.
+select ad_id,
+    ifnull(round(sum(action ='Clicked')/sum(action !='ignored') *100,2),0) ctr
+from Ads
+group by ad_id
+order by ctr desc, ad_id;
 
+21.
+SELECT employee_id,
+       COUNT(team_id) OVER(PARTITION BY team_id) AS team_size
+FROM Employee ORDER BY employee_id;
+
+22.
+SELECT DISTINCT country_name,
+CASE
+WHEN (SUM(T.weather_state) OVER(PARTITION BY T.country_name)/COUNT(T.country_name) OVER(PARTITION BY T.country_name)) <= 15 THEN 'Cold'
+WHEN (SUM(T.weather_state) OVER(PARTITION BY T.country_name)/COUNT(T.country_name) OVER(PARTITION BY T.country_name)) >= 25 THEN 'Hot'
+ELSE 'Warm'
+END AS weather_type 
+FROM (SELECT C.country_name, W.*
+FROM Weather W
+INNER JOIN Countries C ON W.country_id = C.country_id WHERE day BETWEEN '2019-11-01' AND '2019-11-30') T;
+
+23.
 
