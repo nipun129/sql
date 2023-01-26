@@ -58,8 +58,9 @@ SELECT DISTINCT viewer_id
 from Views WHERE viewer_id = author_id ORDER BY auhor_id;
 
 19.
-SELECT D2.im_orders*100/D1.del
-FROM (SELECT count(delivery_id) as del FROM Delivery) D1,
+SELECT round(D2.im_orders*100/D1.del,2) 
+FROM 
+(SELECT count(delivery_id) as del FROM Delivery) D1,
 (SELECT count(delivery_id) as im_orders FROM Delivery WHERE order_date = customer_pref_delivery_date) D2;
 
 20.
