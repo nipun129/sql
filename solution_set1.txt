@@ -102,4 +102,10 @@ SELECT player_id,(SELECT device_id FROM Activity WHERE event_date = TEM.first_lo
 FROM(SELECT player_id, MIN(event_date) AS first_login FROM Activity GROUP BY player_id) TEM;
 
 26.
+SELECT P.product_name,sum(unit) as unit
+FROM Orders O
+INNER JOIN Products P ON O.product_id = P.product_id WHERE O.order_date between '2020-02-01' AND '2020-02-29' GROUP BY P.product_id
+HAVING SUM(unit) >= 100;
+
+27.
 
