@@ -187,4 +187,13 @@ LEFT JOIN Departments D ON S.department_id = D.id
 WHERE D.name IS NULL;
 
 39.
+WITH CallTable AS (
+    SELECT CASE WHEN from_id < to_id THEN from_id ELSE to_id END AS person1,
+    CASE WHEN from_id > to_id THEN from_id ELSE to_id END AS person2,
+    duration
+    FROM Calls
+)
+SELECT person1,person2,count(person1) AS call_count,sum(duration) AS total_duration
+FROM CallTable GROUP BY person1,person2;
 
+40.
