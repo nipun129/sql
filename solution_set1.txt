@@ -177,4 +177,9 @@ RIGHT JOIN Users U ON U.id = M.user_id
 ORDER BY M.travelled_distance desc,U.name;
 
 37.
+SELECT U.unique_id,E.name
+FROM Employees E
+LEFT JOIN EmployeeUNI U ON E.id = U.id;
+
+38.
 
