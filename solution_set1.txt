@@ -113,5 +113,20 @@ WHERE B.unit >= 100;
 SELECT * FROM Users WHERE REGEXP_LIKE(mail, '^[a-zA-Z][a-zA-Z0-9\_\.\-]*@leetcode.com');
 
 28.
+SELECT customer_id,name FROM Customers
+WHERE customer_id in (
+SELECT O.customer_id
+FROM Orders O
+INNER JOIN Product P ON O.product_id = P.product_id WHERE order_date BETWEEN '2020-06-01' AND '2020-06-30'
+GROUP BY O.customer_id
+HAVING SUM(O.quantity*P.price) >= 100)
+AND customer_id in (
+SELECT O.customer_id
+FROM Orders O
+INNER JOIN Product P ON O.product_id = P.product_id WHERE order_date BETWEEN '2020-07-01' AND '2020-07-31'
+GROUP BY O.customer_id
+HAVING SUM(O.quantity*P.price) >= 100);
+
+29.
 
 
