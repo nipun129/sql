@@ -149,4 +149,10 @@ FROM Employees E
 LEFT JOIN EmployeeUNI U ON E.id = U.id;
 
 33.
+SELECT U.name,M.travelled_distance 
+FROM (SELECT user_id,SUM(distance) AS travelled_distance FROM Rides GROUP BY user_id) M
+RIGHT JOIN Users U ON U.id = M.user_id 
+ORDER BY M.travelled_distance desc,U.name;
+
+34.
 
