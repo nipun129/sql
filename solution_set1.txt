@@ -182,4 +182,9 @@ FROM Employees E
 LEFT JOIN EmployeeUNI U ON E.id = U.id;
 
 38.
+SELECT S.id,S.name FROM Students S
+LEFT JOIN Departments D ON S.department_id = D.id
+WHERE D.name IS NULL;
+
+39.
 
