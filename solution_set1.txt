@@ -134,4 +134,9 @@ INNER JOIN TVProgram T ON C.content_id = T.content_id WHERE T.program_date BETWE
 AND C.content_type = 'Movies' AND C.Kids_content = 'Y';
 
 30.
+SELECT Q.id,Q.year,coalesce(N.npv,0)
+FROM Queries Q
+LEFT JOIN NPV N ON Q.id = N.id AND Q.year = N.year;
+
+31.
 
