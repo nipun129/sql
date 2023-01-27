@@ -155,4 +155,20 @@ RIGHT JOIN Users U ON U.id = M.user_id
 ORDER BY M.travelled_distance desc,U.name;
 
 34.
+SELECT * FROM (SELECT DISTINCT T.product_name,
+SUM(T.unit) OVER(PARTITION BY T.product_id) AS unit
+FROM (SELECT O.*, P.product_name,P.product_category
+FROM Orders O
+INNER JOIN Products P ON O.product_id = P.product_id WHERE O.order_date between '2020-02-01' AND '2020-02-29') T) B
+WHERE B.unit >= 100;
+
+35.
+SELECT name FROM (SELECT user_id,COUNT(user_id) AS tot_rat FROM MovieRating GROUP BY user_id) U
+INNER JOIN Users Us ON U.user_id = Us.user_id ORDER BY U.tot_rat desc,Us.name limit 1
+UNION
+SELECT title FROM (SELECT movie_id,SUM(rating)/COUNT(rating) AS avg_rat FROM MovieRating WHERE left(created_at,7)='2020-02' 
+GROUP BY movie_id) R
+INNER JOIN Movies M ON M.movie_id = R.movie_id ORDER BY R.avg_rat desc,M.title limit 1;
+
+36.
 
