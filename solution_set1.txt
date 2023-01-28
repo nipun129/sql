@@ -234,4 +234,10 @@ FROM Employee E1
 INNER JOIN Employee E2 ON E1.id = E2.managerId) T GROUP BY T.name HAVING COUNT(T.name)>=5;
 
 45.
+SELECT D.dept_name,coalesce(S.student_number,0)
+FROM Department D
+LEFT JOIN (SELECT dept_id,COUNT(dept_id) AS student_number FROM Student GROUP BY dept_id) S ON
+D.dept_id = S.dept_id;
+
+46.
 
