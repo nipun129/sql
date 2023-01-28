@@ -243,4 +243,11 @@ D.dept_id = S.dept_id;
 SELECT customer_id FROM Customer GROUP BY customer_id HAVING COUNT(product_key)=(SELECT Count(*) FROM Product);
 
 47.
+SELECT Q.project_id,Q.employee_id FROM (SELECT *,rank()over(partition by T.project_id order by experience_years desc) AS r
+FROM (SELECT P.project_id,P.employee_id,E.experience_years
+FROM Employee E
+INNER JOIN Project P ON E.employee_id = P.employee_id GROUP BY P.project_id,P.employee_id ORDER BY E.experience_years desc) T
+ORDER BY r) Q WHERE Q.r = 1;
+
+48.
 
