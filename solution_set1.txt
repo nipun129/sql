@@ -250,4 +250,11 @@ INNER JOIN Project P ON E.employee_id = P.employee_id GROUP BY P.project_id,P.em
 ORDER BY r) Q WHERE Q.r = 1;
 
 48.
+SELECT B.book_id,B.name
+FROM Books B
+LEFT JOIN Orders O ON B.book_id = O.Book_id
+AND O.dispatch_date BETWEEN '2019-06-23'AND '2018-06-23'
+WHERE DATEDIFF('2019-06-23',B.available_from) > 30
+GROUP BY book_id
+HAVING Sum(IFNULL(O.quantity, 0)) < 10 ;
 
