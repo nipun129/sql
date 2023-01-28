@@ -211,3 +211,22 @@ LEFT JOIN Products P ON W.product_id = P.product_id
 GROUP BY W.name;
 
 42.
+SELECT S1.sale_date,(S1.sold_num-S2.sold_num) AS DIFF
+FROM Sales S1
+INNER JOIN Sales S2 ON S1.sale_date = S2.sale_date AND S1.fruit = 'apples' AND S2.fruit = 'oranges';
+
+43.
+WITH cte AS (
+SELECT player_id, MIN(event_date) as first_login
+FROM Activity
+GROUP BY player_id
+)
+
+SELECT ROUND(SUM(CASE WHEN DATEDIFF(event_date, first_login)=1 THEN 1 ELSE 0  END) / COUNT(DISTINCT cte.player_id), 2) as fraction
+FROM Activity as a
+JOIN cte 
+ON a.player_id = cte.player_id
+
+
+44.
+
