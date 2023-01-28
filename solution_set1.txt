@@ -229,4 +229,9 @@ ON a.player_id = cte.player_id
 
 
 44.
+SELECT T.name FROM (SELECT E1.id,E1.name,E2.name as emp_name,E2.managerId
+FROM Employee E1
+INNER JOIN Employee E2 ON E1.id = E2.managerId) T GROUP BY T.name HAVING COUNT(T.name)>=5;
+
+45.
 
