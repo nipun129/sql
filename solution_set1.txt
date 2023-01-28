@@ -258,3 +258,9 @@ WHERE DATEDIFF('2019-06-23',B.available_from) > 30
 GROUP BY book_id
 HAVING Sum(IFNULL(O.quantity, 0)) < 10 ;
 
+49.
+SELECT student_id,course_id,grade FROM (SELECT *,rank() over(partition by student_id order by grade desc,course_id) as rank_num
+FROM Enrollments) M WHERE M.rank_num = 1;
+
+50.
+
