@@ -263,4 +263,19 @@ SELECT student_id,course_id,grade FROM (SELECT *,rank() over(partition by studen
 FROM Enrollments) M WHERE M.rank_num = 1;
 
 50.
+Question incomplete
+
+51.
+SELECT name,population,area FROM World WHERE area >= 3000000 OR population >= 25000000;
+
+52.
+SELECT A.name FROM (SELECT id,name,coalesce(referee_id,0) AS referee_id FROM Customer) A WHERE referee_id != 2;
+
+53.
+SELECT name FROM Customers WHERE id NOT IN (SELECT customerId as id FROM Orders);
+
+54.
+SELECT employee_id,COUNT(team_id) OVER(PARTITION by team_id) FROM Employee ORDER BY employee_id
+
+55.
 
