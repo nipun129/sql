@@ -307,4 +307,13 @@ SELECT customer_number FROM (SELECT customer_number,total_orders,RANK() OVER(ORD
 FROM Orders GROUP BY customer_number ORDER BY total_orders desc) T) T2 WHERE rnk = 1;
 
 58.
+SELECT 
+     DISTINCT(a.seat_id) 
+FROM Cinema a 
+INNER JOIN Cinema b 
+ON abs(a.seat_id - b.seat_id) = 1 
+WHERE a.free = 1 and b.free = 1 
+ORDER BY a.seat_id
+
+59.
 
