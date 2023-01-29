@@ -316,4 +316,28 @@ WHERE a.free = 1 and b.free = 1
 ORDER BY a.seat_id
 
 59.
+SELECT name FROM SalesPerson WHERE sales_id NOT IN (SELECT S.sales_id
+FROM SalesPerson S
+INNER JOIN Orders O ON S.sales_id = O.sales_id
+INNER JOIN Company C ON O.com_id = C.com_id
+WHERE C.name = 'RED');
+
+60.
+SELECT *,
+CASE WHEN (x+y)>=z AND (y+z)>=x AND (z+x)>=y THEN 'Yes'
+ELSE 'No' END AS triangle 
+FROM Triangle
+
+61.
+SELECT MIN(abs(p2.x - p1.x)) shortest
+FROM Point p1 JOIN Point p2
+ON p1.x != p2.x
+
+62.
+SELECT actor_id,director_id FROM (SELECT A.actor_id,D.director_id,COUNT(DISTINCT A.timestamp) AS counts
+FROM ActorDirector A
+INNER JOIN ActorDirector D ON A.actor_id = D.actor_id AND A.director_id = D.director_id
+GROUP BY A.actor_id,D.director_id) T WHERE counts >= 3;
+
+63.
 
