@@ -351,4 +351,31 @@ INNER JOIN Employee E ON P.employee_id = E.employee_id
 GROUP BY P.project_id;
 
 65.
+SELECT M.seller_id FROM (SELECT seller_id,SUM(price) AS tot FROM Sales GROUP BY seller_id ORDER BY tot desc) M
+JOIN 
+(SELECT seller_id,SUM(price) AS tot FROM Sales GROUP BY seller_id ORDER BY tot desc) N
+ON M.seller_id != N.seller_id AND M.tot = N.tot;
+
+66.
+SELECT S.buyer_id
+FROM Sales S
+INNER JOIN Product P ON S.product_id = P.product_id
+WHERE P.product_name = 'S8' AND P.product_name != 'IiPhone'
+
+67.
+WITH RESULT AS
+(SELECT visited_on,SUM(amount) as amount FROM Customer GROUP BY visited_on),
+RESULT2 AS 
+(
+SELECT 
+visited_on,
+SUM(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING and CURRENT ROW) as amount,
+ROUND(AVG(amount) OVER(ORDER BY visited_on ROWS BETWEEN 6 PRECEDING and CURRENT ROW),2) AS average_amount,
+DENSE_RANK() OVER(ORDER BY visited_on) as rnk FROM RESULT
+)
+SELECT visited_on,amount,average_amount 
+FROM RESULT2
+WHERE rnk > 6;
+
+68.
 
