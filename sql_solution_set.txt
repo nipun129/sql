@@ -444,4 +444,52 @@ JOIN cte
 ON a.player_id = cte.player_id
 
 76.
+SELECT S1.*,ROUND(S2.post_tax_sal * S1.salary) AS salary
+FROM Salaries S1
+INNER JOIN 
+(SELECT company_id,MAX(salary) AS max_salary,
+CASE
+WHEN MAX(salary) < 1000 THEN 1.0
+WHEN MAX(salary) >= 1000 AND MAX(salary) <= 10000 THEN 0.76
+ELSE 0.51 END AS post_tax_sal
+FROM Salaries GROUP BY company_id) S2 ON S1.company_id = S2.company_id;
+
+77.
+SELECT E.*,V.*
+FROM Expressions E
+JOIN Variables V;
+
+SELECT E.left_operand,E.operator,E.right_operand,
+CASE
+WHEN E.operator = '<' THEN IF(L.value < R.value,'true','false')
+WHEN E.operator = '>' THEN IF(L.value > R.value,'true','false')
+ELSE IF (L.value = R.value, 'true','false')
+END AS value
+FROM Expressions E
+LEFT JOIN Variables L ON E.left_operand = L.name
+LEFT JOIN Variables R ON E.right_operand = R.name;
+
+78.
+SELECT C.name 
+FROM Country C
+INNER JOIN Person P ON SUBSTRING(P.phone_number, 1, 3) = C.country_code
+INNER JOIN (select caller_id as id, duration from Calls 
+union all 
+select callee_id as id, duration from Calls) PHN
+ON P.id = PHN.id
+GROUP BY C.name
+HAVING AVG(duration) > (SELECT AVG(duration) FROM Calls);
+
+79.
+SELECT name FROM Employee ORDER BY name;
+
+80.
+SELECT T.year,T.product_id,T.spend AS curr_year_spend,
+LAG(T.spend) OVER(PARTITION BY T.product_id) AS prev_year_spend,
+ROUND(100*(T.spend - LAG(T.spend) OVER(PARTITION BY T.product_id))/LAG(T.spend) OVER(PARTITION BY T.product_id),2)
+AS yoy_rate
+FROM (SELECT transaction_id,product_id,spend,EXTRACT(YEAR FROM transaction_date) AS year
+FROM user_transactions ORDER BY product_id) T;
+
+81.
 
