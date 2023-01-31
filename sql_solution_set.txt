@@ -430,3 +430,18 @@ SELECT ROUND(SUM(CASE WHEN DATEDIFF(event_date, first_login)=1 THEN 1 ELSE 0  EN
 FROM Activity as a
 JOIN cte 
 ON a.player_id = cte.player_id
+
+75.
+WITH cte AS (
+SELECT player_id, MIN(event_date) as first_login
+FROM Activity
+GROUP BY player_id
+)
+
+SELECT ROUND(SUM(CASE WHEN DATEDIFF(event_date, first_login)=1 THEN 1 ELSE 0  END) / COUNT(DISTINCT cte.player_id), 2) as fraction
+FROM Activity as a
+JOIN cte 
+ON a.player_id = cte.player_id
+
+76.
+
