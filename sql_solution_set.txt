@@ -397,3 +397,36 @@ LEFT JOIN Examinations E ON St.student_id = E.student_id AND Su.subject_name = E
 GROUP BY St.student_id,Su.subject_name ;
 
 71.
+SELECT E1.employee_id
+FROM Employees E1
+LEFT JOIN Employees E2 ON E1.manager_id = E2.employee_id 
+LEFT JOIN Employees E3 ON E2.manager_id = E3.employee_id
+LEFT JOIN Employees E4 ON E3.manager_id = E4.employee_id
+WHERE E1.employee_id != 1 AND E4.employee_id = 1;
+
+72.
+SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month,country,count(state) AS trans_count,
+sum(CASE WHEN state='approved' THEN 1  ELSE 0 END) AS approved_count,
+sum(amount) AS trans_total_amount,
+sum(CASE WHEN state='approved' THEN amount ELSE 0 END) AS approved_count
+FROM Transactions GROUP BY month,country;
+
+73.
+SELECT ROUND(AVG(Q.average_percent),2) AS average_daily_percent FROM (SELECT ROUND((100*P.removed_post/T.total_post),2) AS average_percent
+FROM (SELECT action_date,COUNT(post_id) AS total_post FROM Actions WHERE extra ='spam' GROUP BY action_date) T,
+(SELECT action_date,count(A.post_id) AS removed_post
+FROM Actions A
+INNER JOIN Removals R ON A.post_id = R.post_id AND A.extra = 'spam' GROUP BY action_date) P
+WHERE T.action_date = P.action_date) Q;
+
+74.
+WITH cte AS (
+SELECT player_id, MIN(event_date) as first_login
+FROM Activity
+GROUP BY player_id
+)
+
+SELECT ROUND(SUM(CASE WHEN DATEDIFF(event_date, first_login)=1 THEN 1 ELSE 0  END) / COUNT(DISTINCT cte.player_id), 2) as fraction
+FROM Activity as a
+JOIN cte 
+ON a.player_id = cte.player_id
