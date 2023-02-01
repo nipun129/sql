@@ -492,4 +492,24 @@ FROM (SELECT transaction_id,product_id,spend,EXTRACT(YEAR FROM transaction_date)
 FROM user_transactions ORDER BY product_id) T;
 
 81.
+SELECT T.item_type,
+CASE
+WHEN T.item_type = 'prime_eligible' THEN (500000/T.area)*T.count
+ELSE ((500000)-(500000/(SELECT SUM(square_footage) FROM inventory WHERE T.item_type = 'prime_eligible'))*
+(SELECT count(T.item_type) FROM inventory WHERE T.item_type = 'prime_eligible')) 
+END AS item_count
+FROM
+(SELECT item_type,sum(square_footage) AS area,
+count(item_type) AS count
+FROM inventory GROUP BY item_type) T 
+GROUP BY T.item_type;
+
+82.
+WITH user_action AS (SELECT user_id,event_id,event_type,EXTRACT(MONTH FROM event_date) AS month FROM user_actions)
+SELECT u2.month,COUNT(u2.user_id) AS monthly_active_users
+FROM user_action u1
+INNER JOIN user_action u2 ON u1.month = u2.month - 1 AND u1.user_id = u2.user_id
+GROUP BY u2.month,u2.user_id;
+
+83.
 
