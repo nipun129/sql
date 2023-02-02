@@ -582,3 +582,21 @@ SELECT COUNT(*) AS tot_unhappy_cust FROM experience),exp3 AS (SELECT COUNT(*) AS
 SELECT ROUND((100*unhappy_cust)/tot_unhappy_cust,2) AS bad_experience_pct FROM exp2,exp3;
 
 88.
+SELECT
+    gender,
+    day,
+    SUM(score_points) OVER(PARTITION BY gender ORDER BY day) as total
+FROM Scores
+
+89.
+SELECT C.name 
+FROM Country C
+INNER JOIN Person P ON SUBSTRING(P.phone_number, 1, 3) = C.country_code
+INNER JOIN (select caller_id as id, duration from Calls 
+union all 
+select callee_id as id, duration from Calls) PHN
+ON P.id = PHN.id
+GROUP BY C.name
+HAVING AVG(duration) > (SELECT AVG(duration) FROM Calls);
+
+90.
