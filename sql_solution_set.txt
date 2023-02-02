@@ -562,3 +562,23 @@ AND S1.session_status = 'start')
 SELECT SUM(round(TIMESTAMPDIFF(SECOND,start_time,stop_time)/86400)) AS total_uptime_days FROM Server;
 
 86.
+WITH CTE AS (SELECT T1.*,TIMESTAMPDIFF(MINUTE,T2.transaction_timestamp,T1.transaction_timestamp)
+FROM transactions T1
+JOIN transactions T2 ON T1.merchant_id = T2.merchant_id AND
+T1.credit_card_id = T2.credit_card_id AND T1.amount = T2.amount
+AND TIMESTAMPDIFF(SECOND,T2.transaction_timestamp,T1.transaction_timestamp) > 1 AND
+TIMESTAMPDIFF(SECOND,T2.transaction_timestamp,T1.transaction_timestamp) <= 600) 
+SELECT COUNT(*) AS payment_count FROM CTE;
+
+87.
+WITH experience AS (SELECT C.*,M.trip_id,M.order_timestamp,
+ROUND(TIMESTAMPDIFF(SECOND,C.signup_timestamp,M.order_timestamp)/86400) AS days_since
+FROM customers C
+INNER JOIN (SELECT O.customer_id,O.trip_id,O.status,O.order_timestamp
+FROM orders O
+INNER JOIN trips T ON O.trip_id=T.trip_id AND O.status != 'completed successfully') M ON
+C.customer_id = M.customer_id AND EXTRACT(MONTH FROM C.signup_timestamp)= 6), exp2 AS(
+SELECT COUNT(*) AS tot_unhappy_cust FROM experience),exp3 AS (SELECT COUNT(*) AS unhappy_cust FROM experience WHERE days_since <= 14)
+SELECT ROUND((100*unhappy_cust)/tot_unhappy_cust,2) AS bad_experience_pct FROM exp2,exp3;
+
+88.
