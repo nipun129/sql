@@ -624,6 +624,9 @@ join
 on department_salary.pay_month = company_salary.pay_month
 
 92.
+
+
+93..
 WITH Play AS (SELECT P.group_id,M.first_player AS player,M.first_score AS score
 FROM Players P
 JOIN Matches M ON P.player_id=M.first_player
@@ -636,4 +639,3 @@ FROM (Select group_id,player,SUM(score),dense_rank() over(partition by group_id 
 FROM Play GROUP BY player,group_id ORDER BY group_id,player) N
 WHERE N.rnk = 1;
 
-93.
