@@ -651,3 +651,24 @@ FROM Play GROUP BY player,group_id ORDER BY group_id,player) N
 WHERE N.rnk = 1;
 
 94.
+WITH Study AS (SELECT exam_id,student_id,student_name,score,
+MAX(score) OVER(PARTITION BY exam_id) AS score_max,
+MIN(score) OVER(PARTITION BY exam_id) AS score_min
+FROM (SELECT E.exam_id,E.student_id,E.score,S.student_name
+FROM Exam E
+INNER JOIN Student S ON E.student_id = S.student_id) B)
+SELECT DISTINCT student_name,student_name FROM Study WHERE student_name NOT IN (SELECT DISTINCT student_name FROM Study
+WHERE score=score_max OR score=score_min);
+
+95.
+WITH Study AS (SELECT exam_id,student_id,student_name,score,
+MAX(score) OVER(PARTITION BY exam_id) AS score_max,
+MIN(score) OVER(PARTITION BY exam_id) AS score_min
+FROM (SELECT E.exam_id,E.student_id,E.score,S.student_name
+FROM Exam E
+INNER JOIN Student S ON E.student_id = S.student_id) B)
+SELECT DISTINCT student_name,student_name FROM Study WHERE student_name NOT IN (SELECT DISTINCT student_name FROM Study
+WHERE score=score_max OR score=score_min);
+
+96.
+
