@@ -600,3 +600,40 @@ GROUP BY C.name
 HAVING AVG(duration) > (SELECT AVG(duration) FROM Calls);
 
 90.
+
+
+91.
+select department_salary.pay_month, department_id,
+    case
+        when department_avg>company_avg then 'higher'
+        when department_avg<company_avg then 'lower'
+        else 'same'
+    end as comparison
+from
+    (
+      select department_id, avg(amount) as department_avg, date_format(pay_date, '%Y-%m') as pay_month
+      from Salary join Employee on Salary.employee_id = Employee.employee_id
+      group by department_id, pay_month
+    ) as department_salary
+join
+    (
+      select avg(amount) as company_avg,  date_format(pay_date, '%Y-%m') as pay_month 
+        from Salary 
+        group by date_format(pay_date, '%Y-%m')
+    ) as company_salary
+on department_salary.pay_month = company_salary.pay_month
+
+92.
+WITH Play AS (SELECT P.group_id,M.first_player AS player,M.first_score AS score
+FROM Players P
+JOIN Matches M ON P.player_id=M.first_player
+UNION
+SELECT P.group_id,M.second_player AS player,M.second_score AS score
+FROM Players P
+JOIN Matches M ON P.player_id=M.second_player)
+SELECT N.group_id, N.player AS player_id 
+FROM (Select group_id,player,SUM(score),dense_rank() over(partition by group_id order by SUM(score) desc,player) AS rnk
+FROM Play GROUP BY player,group_id ORDER BY group_id,player) N
+WHERE N.rnk = 1;
+
+93.
