@@ -624,7 +624,18 @@ join
 on department_salary.pay_month = company_salary.pay_month
 
 92.
-
+select t1.install_date as install_dt, count(t1.install_date) as installs,
+    round(count(t2.event_date) / count(*), 2) as Day1_retention
+from (
+    select player_id, min(event_date) as install_date
+    from Activity
+    group by 1
+) t1
+left join Activity t2 
+on date_add(t1.install_date, interval 1 day) = t2.event_date
+    and t1.player_id = t2.player_id
+group by 1
+order by 1
 
 93..
 WITH Play AS (SELECT P.group_id,M.first_player AS player,M.first_score AS score
@@ -639,3 +650,4 @@ FROM (Select group_id,player,SUM(score),dense_rank() over(partition by group_id 
 FROM Play GROUP BY player,group_id ORDER BY group_id,player) N
 WHERE N.rnk = 1;
 
+94.
