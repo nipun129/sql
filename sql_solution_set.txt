@@ -688,8 +688,8 @@ FROM Users;
 98.
 WITH tweet AS (SELECT user_id,tweet_date,COUNT(user_id) AS daily_tweets
 FROM tweets GROUP BY user_id,tweet_date ORDER BY user_id,tweet_date)
-SELECT *,ROUND(AVG(daily_tweets) OVER(ORDER BY user_id ROWS BETWEEN 2 PRECEDING AND 
-CURRENT ROW),2)
+SELECT user_id,tweet_date, ROUND(AVG(daily_tweets) OVER(ORDER BY user_id ROWS BETWEEN 2 PRECEDING AND 
+CURRENT ROW),2) AS rolling_avg_3days
 FROM tweet;
 
 99.
