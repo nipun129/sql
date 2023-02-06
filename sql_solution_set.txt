@@ -693,4 +693,19 @@ CURRENT ROW),2) AS rolling_avg_3days
 FROM tweet;
 
 99.
+WITH ACTIVITY AS (SELECT AC.*,AB.age_bucket
+FROM activities AC
+INNER JOIN age_breakdown AB ON AC.user_id = AB.user_id WHERE AC.activity_type = 'open' OR AC.activity_type = 'send')
+SELECT age_bucket,
+CASE WHEN age_bucket='26-30' THEN ROUND(100.0*(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '26-30' AND activity_type='send') /
+(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '26-30'),2)
+ELSE ROUND(100.0*(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '31-35' AND activity_type='send')/
+(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '31-35'),2) END AS send_perc,
+CASE WHEN age_bucket='26-30' THEN ROUND(100.0*(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '26-30' AND activity_type='open') /
+(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '26-30'),2)
+ELSE ROUND(100.0*(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '31-35' AND activity_type='open')/
+(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '31-35'),2) END AS open_perc
+FROM ACTIVITY GROUP BY age_bucket;
+
+100.
 
