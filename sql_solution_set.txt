@@ -671,4 +671,11 @@ SELECT DISTINCT student_name,student_name FROM Study WHERE student_name NOT IN (
 WHERE score=score_max OR score=score_min);
 
 96.
+SELECT SP.user_id,SP.song_id,COALESCE((SP.song_plays + SH.song_plays),SP.song_plays) AS song_plays
+FROM (SELECT user_id,song_id,count(song_id) AS song_plays 
+FROM songs_weekly WHERE listen_time < '2022-08-04 23:59:59' GROUP BY user_id,song_id) SP
+LEFT JOIN (SELECT user_id,song_id,song_plays FROM songs_history) SH
+ON SP.user_id = SH.user_id AND SP.song_id = SH.song_id;
+
+97.
 
