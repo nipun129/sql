@@ -675,7 +675,22 @@ SELECT SP.user_id,SP.song_id,COALESCE((SP.song_plays + SH.song_plays),SP.song_pl
 FROM (SELECT user_id,song_id,count(song_id) AS song_plays 
 FROM songs_weekly WHERE listen_time < '2022-08-04 23:59:59' GROUP BY user_id,song_id) SP
 LEFT JOIN (SELECT user_id,song_id,song_plays FROM songs_history) SH
-ON SP.user_id = SH.user_id AND SP.song_id = SH.song_id;
+ON SP.user_id = SH.user_id AND SP.song_id = SH.song_id
+ORDER BY COALESCE((SP.song_plays + SH.song_plays),SP.song_plays) desc;
 
 97.
+WITH Users AS (SELECT E.email_id,E.user_id,T.signup_action
+FROM emails E
+LEFT JOIN texts T ON E.email_id = T.email_id AND T.signup_action = 'Confirmed') 
+SELECT ROUND((SELECT COUNT(*) From Users WHERE signup_action = 'Confirmed')/COUNT(*),2) AS confirm_rate
+FROM Users;
+
+98.
+WITH tweet AS (SELECT user_id,tweet_date,COUNT(user_id) AS daily_tweets
+FROM tweets GROUP BY user_id,tweet_date ORDER BY user_id,tweet_date)
+SELECT *,ROUND(AVG(daily_tweets) OVER(ORDER BY user_id ROWS BETWEEN 2 PRECEDING AND 
+CURRENT ROW),2)
+FROM tweet;
+
+99.
 
