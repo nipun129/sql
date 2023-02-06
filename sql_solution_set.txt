@@ -708,4 +708,10 @@ ELSE ROUND(100.0*(SELECT SUM(time_spent) FROM ACTIVITY WHERE age_bucket = '31-35
 FROM ACTIVITY GROUP BY age_bucket;
 
 100.
-
+WITH CTE AS (WITH POCR AS(SELECT M.*,C.followers AS comwise_followers
+FROM (SELECT P.*,E.company_id
+FROM personal_profiles P
+LEFT JOIN employee_company E ON P.profile_id=E.personal_profile_id) M
+LEFT JOIN company_pages C ON M.company_id=C.company_id)
+SELECT profile_id,followers,sum(comwise_followers) AS tot_com_followers FROM POCR GROUP BY profile_id,followers)
+SELECT profile_id FROM CTE WHERE followers>tot_com_followers;
