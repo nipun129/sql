@@ -750,4 +750,11 @@ WITH Emp AS(SELECT *,months*salary AS earnings,rank() OVER(ORDER BY months*salar
 SELECT CONCAT(earnings,' ', COUNT(earnings)) AS Output FROM Emp WHERE rnk = 1 GROUP BY earnings;
 
 108.
+WITH OC AS(SELECT name,occupation,LEFT(occupation,1) AS initials FROM OCCUPATIONS ORDER BY name)
+SELECT CONCAT(CONCAT(name,'(',initials),')') AS SampleOutput FROM OC
+UNION
+(SELECT CONCAT('There are a total of ',COUNT(occupation),' ',LOWER(occupation),'s') AS SampleOutput FROM OC GROUP BY occupation) 
+ORDER BY COUNT(occupation),occupation;
+
+109.
 
