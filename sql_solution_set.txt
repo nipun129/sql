@@ -730,4 +730,24 @@ WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
 SELECT name FROM STUDENTS WHERE marks > 75 ORDER BY RIGHT(name,3),id;
 
 104.
+SELECT name FROM Employee WHERE salary > 2000 AND months < 10 ORDER BY employee_id;
+
+105.
+SELECT 
+CASE
+WHEN NOT (A+B) >= C OR NOT (B+C) >= A OR NOT (C+A) >= B THEN 'Not A Triangle'
+WHEN A=B AND B=C THEN 'Equilateral'
+WHEN A=B OR B=C THEN 'Isosceles'
+ELSE 'Scalene' END AS Output
+FROM TRIANGLES;
+
+106.
+WITH EMP AS(SELECT id,name, salary,REPLACE((salary),0,'') AS wrong_sal FROM EMPLOYEES)
+SELECT CEILING(AVG(salary) - AVG(wrong_sal)) FROM EMP;
+
+107.
+WITH Emp AS(SELECT *,months*salary AS earnings,rank() OVER(ORDER BY months*salary desc) AS rnk FROM Employee)
+SELECT CONCAT(earnings,' ', COUNT(earnings)) AS Output FROM Emp WHERE rnk = 1 GROUP BY earnings;
+
+108.
 
