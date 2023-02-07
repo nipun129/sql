@@ -715,3 +715,15 @@ LEFT JOIN employee_company E ON P.profile_id=E.personal_profile_id) M
 LEFT JOIN company_pages C ON M.company_id=C.company_id)
 SELECT profile_id,followers,sum(comwise_followers) AS tot_com_followers FROM POCR GROUP BY profile_id,followers)
 SELECT profile_id FROM CTE WHERE followers>tot_com_followers;
+
+101.
+SELECT U.username, U.activity, U.startDate,U.endDate FROM (SELECT *,rank() OVER(partition by username ORDER BY startDate ) AS rnk,
+count(activity) OVER(partition by username) AS num FROM UserActivity) U
+WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
+
+102.
+SELECT U.username, U.activity, U.startDate,U.endDate FROM (SELECT *,rank() OVER(partition by username ORDER BY startDate ) AS rnk,
+count(activity) OVER(partition by username) AS num FROM UserActivity) U
+WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
+
+103.
