@@ -727,3 +727,7 @@ count(activity) OVER(partition by username) AS num FROM UserActivity) U
 WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
 
 103.
+SELECT name FROM STUDENTS WHERE marks > 75 ORDER BY RIGHT(name,3),id;
+
+104.
+
