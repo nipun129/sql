@@ -757,4 +757,24 @@ UNION
 ORDER BY COUNT(occupation),occupation;
 
 109.
+SELECT
+    [Doctor],
+    [Professor],
+    [Singer],
+    [Actor]
+FROM
+(SELECT row_number() over(partition by occupation order by Name) AS rn,
+occupation,name
+FROM OCCUPATIONS) AS Source
+PIVOT
+(MAX(name) FOR [occupation] IN ([Doctor],[Professor],[Singer],[Actor])) AS pvt ORDER BY rn;
+
+110.
+SELECT N,
+CASE WHEN P IS NULL THEN 'Root'
+WHEN N NOT IN (SELECT P FROM BST) THEN 'Leaf'
+ELSE 'Inner' END AS NodeType
+FROM BST;
+
+111.
 
