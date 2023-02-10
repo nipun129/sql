@@ -393,7 +393,8 @@ GROUP BY diff;
 SELECT St.*,Su.*,COUNT(E.subject_name) AS attended_exams
 FROM Students St
 JOIN Subjects Su
-LEFT JOIN Examinations E ON St.student_id = E.student_id AND Su.subject_name = E.subject_name
+LEFT JOIN Examinations E ON St.
+= E.student_id AND Su.subject_name = E.subject_name
 GROUP BY St.student_id,Su.subject_name ;
 
 71.
@@ -854,3 +855,254 @@ COALESCE(ROUND((100*(curr_year_spend - prev_year_spend)/prev_year_spend),2),' ')
 FROM PROD ;
 
 120.
+SELECT T.item_type,
+CASE
+WHEN T.item_type = 'prime_eligible' THEN (500000/T.area)*T.count
+ELSE ((500000)-(500000/(SELECT SUM(square_footage) FROM inventory WHERE T.item_type = 'prime_eligible'))*
+(SELECT count(T.item_type) FROM inventory WHERE T.item_type = 'prime_eligible')) 
+END AS item_count
+FROM
+(SELECT item_type,sum(square_footage) AS area,
+count(item_type) AS count
+FROM inventory GROUP BY item_type) T 
+GROUP BY T.item_type;
+
+121.
+WITH user_action AS (SELECT user_id,event_id,event_type,EXTRACT(MONTH FROM event_date) AS month FROM user_actions)
+SELECT u2.month,COUNT(u2.user_id) AS monthly_active_users
+FROM user_action u1
+INNER JOIN user_action u2 ON u1.month = u2.month - 1 AND u1.user_id = u2.user_id
+GROUP BY u2.month,u2.user_id;
+
+122.
+SELECT AVG(dd.searches) as median_val
+FROM (
+SELECT d.searches, @rownum:=@rownum+1 as `row_number`, @total_rows:=@rownum
+  FROM search_frequency d, (SELECT @rownum:=0) r
+  WHERE d.searches is NOT NULL
+  -- put some where clause here
+  ORDER BY d.searches
+) as dd
+WHERE dd.row_number IN ( FLOOR((@total_rows+1)/2), FLOOR((@total_rows+2)/2) );
+
+123.
+WITH payment_status AS (
+SELECT
+  advertiser.user_id,
+  advertiser.status,
+  payment.paid
+FROM advertiser
+LEFT JOIN daily_pay AS payment
+  ON advertiser.user_id = payment.user_id
+
+UNION
+
+SELECT
+  payment.user_id,
+  advertiser.status,
+  payment.paid
+FROM daily_pay AS payment
+LEFT JOIN advertiser
+  ON advertiser.user_id = payment.user_id
+)
+SELECT user_id,
+CASE
+WHEN paid IS NULL THEN 'CHURN'
+WHEN status != 'CHURN' AND paid IS NOT NULL THEN 'EXISTING'
+WHEN status = 'CHURN' AND paid IS NOT NULL THEN 'RESURRECT'
+WHEN status IS NULL THEN 'NEW'
+END AS new_status
+FROM payment_status
+ORDER BY user_id;
+
+124.
+WITH Server AS 
+(SELECT S1.server_id,S1.status_time AS start_time,S2.status_time AS stop_time
+FROM server_utilization S1
+INNER JOIN server_utilization S2 ON S1.server_id = S2.server_id 
+AND S1.session_status != S2.session_status 
+AND S1.session_status = 'start')
+SELECT SUM(round(TIMESTAMPDIFF(SECOND,start_time,stop_time)/86400)) AS total_uptime_days FROM Server;
+
+125.
+WITH CTE AS (SELECT T1.*,TIMESTAMPDIFF(MINUTE,T2.transaction_timestamp,T1.transaction_timestamp)
+FROM transactions T1
+JOIN transactions T2 ON T1.merchant_id = T2.merchant_id AND
+T1.credit_card_id = T2.credit_card_id AND T1.amount = T2.amount
+AND TIMESTAMPDIFF(SECOND,T2.transaction_timestamp,T1.transaction_timestamp) > 1 AND
+TIMESTAMPDIFF(SECOND,T2.transaction_timestamp,T1.transaction_timestamp) <= 600) 
+SELECT COUNT(*) AS payment_count FROM CTE;
+
+126.
+WITH experience AS (SELECT C.*,M.trip_id,M.order_timestamp,
+ROUND(TIMESTAMPDIFF(SECOND,C.signup_timestamp,M.order_timestamp)/86400) AS days_since
+FROM customers C
+INNER JOIN (SELECT O.customer_id,O.trip_id,O.status,O.order_timestamp
+FROM orders O
+INNER JOIN trips T ON O.trip_id=T.trip_id AND O.status != 'completed successfully') M ON
+C.customer_id = M.customer_id AND EXTRACT(MONTH FROM C.signup_timestamp)= 6), exp2 AS(
+SELECT COUNT(*) AS tot_unhappy_cust FROM experience),exp3 AS (SELECT COUNT(*) AS unhappy_cust FROM experience WHERE days_since <= 14)
+SELECT ROUND((100*unhappy_cust)/tot_unhappy_cust,2) AS bad_experience_pct FROM exp2,exp3;
+
+127.
+SELECT
+    gender,
+    day,
+    SUM(score_points) OVER(PARTITION BY gender ORDER BY day) as total
+FROM Scores
+
+128.
+SELECT C.name 
+FROM Country C
+INNER JOIN Person P ON SUBSTRING(P.phone_number, 1, 3) = C.country_code
+INNER JOIN (select caller_id as id, duration from Calls 
+union all 
+select callee_id as id, duration from Calls) PHN
+ON P.id = PHN.id
+GROUP BY C.name
+HAVING AVG(duration) > (SELECT AVG(duration) FROM Calls);
+
+129.
+
+130.
+select department_salary.pay_month, department_id,
+    case
+        when department_avg>company_avg then 'higher'
+        when department_avg<company_avg then 'lower'
+        else 'same'
+    end as comparison
+from
+    (
+      select department_id, avg(amount) as department_avg, date_format(pay_date, '%Y-%m') as pay_month
+      from Salary join Employee on Salary.employee_id = Employee.employee_id
+      group by department_id, pay_month
+    ) as department_salary
+join
+    (
+      select avg(amount) as company_avg,  date_format(pay_date, '%Y-%m') as pay_month 
+        from Salary 
+        group by date_format(pay_date, '%Y-%m')
+    ) as company_salary
+on department_salary.pay_month = company_salary.pay_month
+
+131.
+select t1.install_date as install_dt, count(t1.install_date) as installs,
+    round(count(t2.event_date) / count(*), 2) as Day1_retention
+from (
+    select player_id, min(event_date) as install_date
+    from Activity
+    group by 1
+) t1
+left join Activity t2 
+on date_add(t1.install_date, interval 1 day) = t2.event_date
+    and t1.player_id = t2.player_id
+group by 1
+order by 1
+
+132.
+WITH Play AS (SELECT P.group_id,M.first_player AS player,M.first_score AS score
+FROM Players P
+JOIN Matches M ON P.player_id=M.first_player
+UNION
+SELECT P.group_id,M.second_player AS player,M.second_score AS score
+FROM Players P
+JOIN Matches M ON P.player_id=M.second_player)
+SELECT N.group_id, N.player AS player_id 
+FROM (Select group_id,player,SUM(score),dense_rank() over(partition by group_id order by SUM(score) desc,player) AS rnk
+FROM Play GROUP BY player,group_id ORDER BY group_id,player) N
+WHERE N.rnk = 1;
+
+133.
+WITH Study AS (SELECT exam_id,student_id,student_name,score,
+MAX(score) OVER(PARTITION BY exam_id) AS score_max,
+MIN(score) OVER(PARTITION BY exam_id) AS score_min
+FROM (SELECT E.exam_id,E.student_id,E.score,S.student_name
+FROM Exam E
+INNER JOIN Student S ON E.student_id = S.student_id) B)
+SELECT DISTINCT student_name,student_name FROM Study WHERE student_name NOT IN (SELECT DISTINCT student_name FROM Study
+WHERE score=score_max OR score=score_min);
+
+134.
+WITH Study AS (SELECT exam_id,student_id,student_name,score,
+MAX(score) OVER(PARTITION BY exam_id) AS score_max,
+MIN(score) OVER(PARTITION BY exam_id) AS score_min
+FROM (SELECT E.exam_id,E.student_id,E.score,S.student_name
+FROM Exam E
+INNER JOIN Student S ON E.student_id = S.student_id) B)
+SELECT DISTINCT student_name,student_name FROM Study WHERE student_name NOT IN (SELECT DISTINCT student_name FROM Study
+WHERE score=score_max OR score=score_min);
+
+135.
+SELECT U.username, U.activity, U.startDate,U.endDate FROM (SELECT *,rank() OVER(partition by username ORDER BY startDate ) AS rnk,
+count(activity) OVER(partition by username) AS num FROM UserActivity) U
+WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
+
+136.
+SELECT U.username, U.activity, U.startDate,U.endDate FROM (SELECT *,rank() OVER(partition by username ORDER BY startDate ) AS rnk,
+count(activity) OVER(partition by username) AS num FROM UserActivity) U
+WHERE (num!=1 AND rnk=2) OR (num=1 AND rnk =1);
+
+137.
+SELECT id,name,salary FROM EMPLOYEES;
+WITH EMP AS(SELECT id,name, salary,REPLACE((salary),0,'') AS wrong_sal FROM EMPLOYEES)
+SELECT CEILING(AVG(salary) - AVG(wrong_sal)) FROM EMP;
+
+138.
+WITH Emp AS(SELECT *,months*salary AS earnings,rank() OVER(ORDER BY months*salary desc) AS rnk FROM Employee)
+SELECT CONCAT(earnings,' ', COUNT(earnings)) AS Output FROM Emp WHERE rnk = 1 GROUP BY earnings;
+
+139.
+WITH OC AS(SELECT name,occupation,LEFT(occupation,1) AS initials FROM OCCUPATIONS ORDER BY name)
+SELECT CONCAT(CONCAT(name,'(',initials),')') AS SampleOutput FROM OC
+UNION
+(SELECT CONCAT('There are a total of ',COUNT(occupation),' ',LOWER(occupation),'s') AS SampleOutput FROM OC GROUP BY occupation) 
+ORDER BY COUNT(occupation),occupation;
+
+140.
+SELECT
+    [Doctor],
+    [Professor],
+    [Singer],
+    [Actor]
+FROM
+(SELECT row_number() over(partition by occupation order by Name) AS rn,
+occupation,name
+FROM OCCUPATIONS) AS Source
+PIVOT
+(MAX(name) FOR [occupation] IN ([Doctor],[Professor],[Singer],[Actor])) AS pvt ORDER BY rn;
+
+141.
+SELECT N,
+CASE WHEN P IS NULL THEN 'Root'
+WHEN (SELECT COUNT(*) FROM BST WHERE P=B.N) >0 THEN 'Inner'
+ELSE 'Leaf' END AS NodeType
+FROM BST B ORDER BY N;
+
+142.
+WITH EMP AS (SELECT C.company_code,C.founder,E.employee_code,E.manager_code,E.senior_manager_code,E.lead_manager_code
+FROM Employee E INNER JOIN Company C ON E.company_code = C.company_code)
+SELECT company_code,founder,count(DISTINCT lead_manager_code) AS lead_managers,
+count(DISTINCT senior_manager_code) AS senior_managers,
+count(DISTINCT manager_code) AS managers,
+count(DISTINCT employee_code) AS employees
+FROM EMP GROUP BY company_code,founder
+ORDER BY company_code;
+
+143.
+SELECT A1.*
+FROM A A1
+INNER JOIN A A2 ON A1.X = A2.Y AND A1.Y = A2.X
+WHERE A1.X <= A1.Y
+GROUP BY A1.X,A1.Y
+ORDER BY A1.X;
+
+144.
+WITH CTE AS(SELECT Fr.*,(SELECT name FROM Students WHERE id = Fr.friend_id) AS friend_name,
+Pa.salary AS friend_salary
+FROM Friends Fr
+INNER JOIN Packages Pa ON Fr.friend_id = Pa.id ORDER BY Fr.id)
+SELECT C1.friend_name AS name FROM CTE C1
+INNER JOIN CTE C2 ON C1.friend_id = C2.id
+WHERE C2.friend_salary > C1.friend_salary ORDER BY C2.friend_salary;
+
+145.
