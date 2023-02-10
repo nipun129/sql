@@ -845,3 +845,12 @@ ELSE 'Scalene' END AS Output
 FROM TRIANGLES;
 
 119.
+WITH PROD AS (SELECT product_id,spend AS curr_year_spend,
+lag(spend,1) over(order by extract(year FROM transaction_date)) AS prev_year_spend,
+extract(year FROM transaction_date) as years FROM user_transactions
+ORDER BY extract(year FROM transaction_date))
+SELECT product_id,curr_year_spend,COALESCE(prev_year_spend,' ') AS prev_year_spend,
+COALESCE(ROUND((100*(curr_year_spend - prev_year_spend)/prev_year_spend),2),' ') AS yoy_rate
+FROM PROD ;
+
+120.
