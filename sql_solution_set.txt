@@ -777,4 +777,32 @@ ELSE 'Inner' END AS NodeType
 FROM BST;
 
 111.
+WITH EMP AS (SELECT C.company_code,C.founder,E.employee_code,E.manager_code,E.senior_manager_code,E.lead_manager_code
+FROM Employee E INNER JOIN Company C ON E.company_code = C.company_code)
+SELECT company_code,founder,count(DISTINCT lead_manager_code) AS lead_managers,
+count(DISTINCT senior_manager_code) AS senior_managers,
+count(DISTINCT manager_code) AS managers,
+count(DISTINCT employee_code) AS employees
+FROM EMP GROUP BY company_code,founder
+ORDER BY company_code;
 
+112.
+
+
+113.
+WITH RECURSIVE cte AS
+(
+  SELECT 1 AS n, CAST('*' AS CHAR(100)) AS str
+  UNION ALL
+  SELECT n + 1, concat('* ',str) FROM cte WHERE n < 20
+)
+SELECT str FROM cte;
+
+114.
+WITH RECURSIVE cte AS
+(
+  SELECT 21 AS n,CAST('*' AS CHAR(100)) AS str
+  UNION ALL
+  SELECT n - 1, repeat('* ',n-1) FROM cte WHERE n >= 2
+)
+SELECT str FROM cte WHERE n < 21;
