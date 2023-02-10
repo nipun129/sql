@@ -808,6 +808,9 @@ WITH RECURSIVE cte AS
 SELECT str FROM cte WHERE n < 21;
 
 115.
+SELECT name FROM STUDENTS WHERE marks > 75 ORDER BY RIGHT(name,3),id;
+
+116.
 CREATE TABLE A(
 X int,
 Y int
@@ -827,3 +830,18 @@ GROUP BY A1.X,A1.Y
 ORDER BY A1.X;
 
 116.
+SELECT name FROM Employee ORDER BY name;
+
+117.
+SELECT name FROM Employee WHERE salary > 2000 AND months < 10 ORDER BY employee_id;
+
+118.
+SELECT 
+CASE
+WHEN NOT (A+B) >= C OR NOT (B+C) >= A OR NOT (C+A) >= B THEN 'Not A Triangle'
+WHEN A=B AND B=C THEN 'Equilateral'
+WHEN A=B OR B=C THEN 'Isosceles'
+ELSE 'Scalene' END AS Output
+FROM TRIANGLES;
+
+119.
