@@ -1134,3 +1134,8 @@ ORDER BY datediff(MIN(End_Date), Start_Date), Start_Date;
 
 147.
 
+148.
+SELECT COUNT(*)/2 AS unique_relationships
+FROM payments P1
+INNER JOIN payments P2 ON P1.payer_id = P2.recipient_id AND P2.payer_id=P1.recipient_id
+;
