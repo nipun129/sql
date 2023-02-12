@@ -1119,4 +1119,18 @@ count(hacker_id) AS num_challenged FROM HACK GROUP BY hacker_id
 HAVING count(hacker_id)>1 ORDER BY count(hacker_id),hacker_id;
 
 146.
+SELECT start_date,MIN(end_date)
+FROM
+(SELECT  P2.start_date
+FROM Projects P1
+RIGHT JOIN Projects P2 ON P1.end_date = P2.start_date
+WHERE P1.start_date IS NULL) SD,
+(SELECT  P1.end_date
+FROM Projects P1
+LEFT JOIN Projects P2 ON P1.end_date = P2.start_date
+WHERE P2.end_date IS NULL) ED
+WHERE start_date < end_date GROUP BY start_date
+ORDER BY datediff(MIN(End_Date), Start_Date), Start_Date;
+
+147.
 
