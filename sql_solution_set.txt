@@ -1106,3 +1106,17 @@ INNER JOIN CTE C2 ON C1.friend_id = C2.id
 WHERE C2.friend_salary > C1.friend_salary ORDER BY C2.friend_salary;
 
 145.
+WITH HACK AS (SELECT S.hacker_id,S.challenge_id,T.difficulty_level,S.score,T.max_score
+FROM Submissions S
+LEFT JOIN 
+(SELECT C.challenge_id,C.difficulty_level,D.score AS max_score
+FROM Challenges C
+LEFT JOIN Difficulty D ON C.difficulty_level = D.difficulty_level) T 
+ON S.challenge_id = T.challenge_id
+WHERE S.score=T.max_score)
+SELECT (SELECT name FROM Hackers WHERE HACK.hacker_id = hacker_id )AS name,
+count(hacker_id) AS num_challenged FROM HACK GROUP BY hacker_id
+HAVING count(hacker_id)>1 ORDER BY count(hacker_id),hacker_id;
+
+146.
+
