@@ -1145,4 +1145,13 @@ WITH transact AS (SELECT user_id,spend,transaction_date,rank() over(partition by
 SELECT COUNT(user_id) AS output FROM transact WHERE rank_val = 1 AND spend >= 50;
 
 150.
+WITH Measure AS
+(SELECT measurement_value,timestamp(date(measurement_time)) AS measurement_day,
+row_number() over(partition by extract(DAY FROM measurement_time) order by measurement_time) as row_num 
+FROM measurements)
+SELECT measurement_day,SUM(CASE WHEN row_num % 2 != 0 THEN measurement_value ELSE 0 END) AS odd_sum,
+SUM(CASE WHEN row_num % 2 = 0 THEN measurement_value ELSE 0 END) AS even_sum
+FROM Measure GROUP BY measurement_day;
+
+151.
 
