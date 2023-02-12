@@ -1139,3 +1139,10 @@ SELECT COUNT(*)/2 AS unique_relationships
 FROM payments P1
 INNER JOIN payments P2 ON P1.payer_id = P2.recipient_id AND P2.payer_id=P1.recipient_id
 ;
+
+149.
+WITH transact AS (SELECT user_id,spend,transaction_date,rank() over(partition by user_id order by transaction_date) as rank_val FROM user_transactions)
+SELECT COUNT(user_id) AS output FROM transact WHERE rank_val = 1 AND spend >= 50;
+
+150.
+
