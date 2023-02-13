@@ -1196,4 +1196,28 @@ FROM employee_pay)
 SELECT employee_id,salary,status FROM CTE WHERE status = 'Overpaid' OR status = 'Underpaid';
 
 155.
+SELECT COUNT(*)/2 AS unique_relationships
+FROM payments P1
+INNER JOIN payments P2 ON P1.payer_id = P2.recipient_id AND P2.payer_id=P1.recipient_id
+;
+
+156.
+WITH CTE AS (SELECT user_id,product_id,count(purchase_date) AS repeats FROM purchases GROUP BY user_id,product_id)
+SELECT COUNT(*) AS repeat_purchasers FROM CTE WHERE repeats>=2 ;
+
+157.
+WITH CTE2 AS (WITH CTE AS(SELECT transaction_id,type,amount,date(transaction_date) AS transaction_day FROM transactions ORDER BY date(transaction_date))
+SELECT timestamp(transaction_day,'12:00:00') AS transaction_date,
+SUM(CASE WHEN type='deposit' THEN amount ELSE -1*amount END) AS balance
+FROM CTE GROUP BY transaction_day)
+SELECT transaction_date,sum(balance) OVER(ORDER BY transaction_date) AS balance FROM CTE2;
+
+158.
+WITH CTE AS(SELECT category,product,user_id,spend,extract(YEAR FROM transaction_date) AS year,
+rank() over(partition by category order by spend desc) as rank_val 
+FROM product_spend WHERE extract(YEAR FROM transaction_date)='2022')
+SELECT category,product,spend AS total_spend FROM CTE WHERE rank_va =1 OR rank_val=2;
+
+159.
+
 
