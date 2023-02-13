@@ -1154,4 +1154,33 @@ SUM(CASE WHEN row_num % 2 = 0 THEN measurement_value ELSE 0 END) AS even_sum
 FROM Measure GROUP BY measurement_day;
 
 151.
+SELECT t1.user_id 
+FROM 
+(select *,
+rank () over(partition by user_id order by transaction_date desc)
+From transactions) t1
+join transactions t2
+on t1.user_id = t2.user_id 
+and TIMESTAMPDIFF(DAY,t1.transaction_date,t2.transaction_date)=1
+join transactions t3
+on t1.user_id = t3.user_id
+and TIMESTAMPDIFF(DAY,t1.transaction_date,t3.transaction_date)=2;
+
+152.
+WITH temp_amenities AS(SELECT rental_id,amenity,COUNT(amenity) over(partition by rental_id) AS no_of_amenities  FROM rental_amenities),
+temp_amenities2 AS (SELECT COUNT(*) FROM temp_amenities a
+inner join 
+temp_amenities b 
+on a.no_of_amenities = b.no_of_amenities
+AND a.amenity = b.amenity
+AND 
+a.rental_id<>b.rental_id
+GROUP BY 
+a.rental_id,
+b.rental_id, 
+a.no_of_amenities
+HAVING COUNT(*) = a.no_of_amenities)
+SELECT CEIL(COUNT(*)/2) as matching_airbnb FROM temp_amenities2;
+
+153.
 
