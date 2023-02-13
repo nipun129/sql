@@ -1219,5 +1219,15 @@ FROM product_spend WHERE extract(YEAR FROM transaction_date)='2022')
 SELECT category,product,spend AS total_spend FROM CTE WHERE rank_va =1 OR rank_val=2;
 
 159.
-
+WITH CTE AS(SELECT *,TIMESTAMPDIFF(DAY,signup_date,last_login) AS days,
+CASE WHEN date(signup_date) BETWEEN '2022-05-31' AND '2022-06-05' THEN 1
+WHEN date(signup_date) BETWEEN '2022-06-06' AND '2022-06-13' THEN 2
+WHEN date(signup_date) BETWEEN '2022-06-14' AND '2022-06-21' THEN 3
+WHEN date(signup_date) BETWEEN '2022-06-22' AND '2022-06-29' THEN 4
+ELSE 5 END AS signup_week
+FROM users), CTE2 AS (SELECT *,COUNT(signup_week) OVER(PARTITION BY signup_week) AS weekly_signed_users
+FROM CTE),
+CTE3 AS(SELECT *,
+COUNT(CASE WHEN days<=28 THEN 1 END) OVER(PARTITION BY signup_week) AS retained_users FROM CTE2)
+SELECT DISTINCT signup_week,ROUND(100*(retained_users/weekly_signed_users),2) AS churn_rate FROM CTE3;
 
