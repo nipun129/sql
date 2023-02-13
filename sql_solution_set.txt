@@ -1183,4 +1183,17 @@ HAVING COUNT(*) = a.no_of_amenities)
 SELECT CEIL(COUNT(*)/2) as matching_airbnb FROM temp_amenities2;
 
 153.
+WITH CTE AS(SELECT advertiser_id,SUM(revenue) AS tot_revenue,SUM(spend) AS tot_spend FROM ad_campaigns GROUP BY advertiser_id)
+SELECT advertiser_id,ROUND(tot_revenue/tot_spend,2) AS ROAS
+FROM CTE ORDER BY advertiser_id;
+
+154.
+WITH CTE AS (SELECT employee_id,salary,title,AVG(salary) OVER(PARTITION BY title) AS dep_avg_sal,
+CASE WHEN salary > 2*AVG(salary) OVER(PARTITION BY title) THEN 'Overpaid'
+WHEN salary < 0.5*AVG(salary) OVER(PARTITION BY title) THEN 'Underpaid'
+ELSE 'Normal' END AS status
+FROM employee_pay)
+SELECT employee_id,salary,status FROM CTE WHERE status = 'Overpaid' OR status = 'Underpaid';
+
+155.
 
